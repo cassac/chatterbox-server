@@ -54,7 +54,7 @@ var requestHandler = function(request, response) {
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
-  
+
   var statusCode = 200;
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = 'application/json';
@@ -72,7 +72,8 @@ var requestHandler = function(request, response) {
       enddata.push(JSON.parse(data.toString()));
     });
     response.writeHead(statusCode, headers);
-    response.end('{"results":[]}');
+    var returnData = {results: enddata};
+    response.end(JSON.stringify(returnData));
   }
 
   if (request.method === 'GET') {
@@ -82,6 +83,12 @@ var requestHandler = function(request, response) {
     response.end(JSON.stringify(returnData));
   }
 
+  if (request.method === 'OPTIONS') {
+    statusCode = 200;
+    response.writeHead(statusCode, headers);
+    var returnData = {results: defaultCorsHeaders['access-control-allow-methods']};
+    response.end(JSON.stringify(returnData));    
+  }
   // The outgoing status.
   // var statusCode = 200;
 
