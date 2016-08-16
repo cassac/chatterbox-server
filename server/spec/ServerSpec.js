@@ -116,4 +116,18 @@ describe('Node Server Request Listener Function', function() {
       });
   });
 
+  it('Should return 405 when endpoint does not accept POST requests', function() {
+    var req = new stubs.request('/rooms', 'POST');
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    // Wait for response to return and then check status code
+    waitForThen(
+      function() { return res._ended; },
+      function() {
+        expect(res._responseCode).to.equal(405);
+      });
+  });
+
 });
