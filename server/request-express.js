@@ -13,15 +13,10 @@ var endpoints = {
   },  
 };
 
-
 app.use(express.static('client'));
 
-
 app.get('/classes/messages', function(req, res) {
-  console.log(_messages, _rooms);
-  console.log(req.url);
-  console.log(urlParser.endpointData(req.url, endpoints));
-  res.json({results: _messages, rooms: _rooms});
+  res.json({results: endpoints.classes.messages, rooms: endpoints.classes.rooms});
   res.end();
 });
 
@@ -32,19 +27,13 @@ app.post('/classes/messages', function(req, res) {
     var endpoint = urlParser.endpointData(req.url, endpoints);
     endpoint.push(jsonData);
     _rooms[jsonData.roomname] = true;
-    // _messages.push(jsonData);
+    fs.writeFile('data.txt', JSON.stringify(endpoints), function(err, data) {
+      if (err) {
+        throw err;
+      }
+    });
   });
 
-  // fs.exists('./data.txt', function(err, data) {
-  //   if (err) {
-  //     fs
-  //   }
-  // })
-
-  fs.writeFile('data.txt', endpoints, function(err, data) {
-
-    console.log('saved to file!');
-  });
   res.json({results: _messages});
   res.end();
 });
@@ -58,7 +47,10 @@ app.get('/', function(req, res) {
 });
 
 app.listen(8080, function() {
-  console.log('stared!');
-  // if(fs.exists('./data.txt'))
-  // endpoints = fs.readFileSync('./data.txt');
+  console.log('starrrrted!');
+  fs.exists('data.txt', (exists) =>{
+    if (exists) {
+      endpoints = JSON.parse(fs.readFileSync('data.txt').toString());
+    }
+  });
 });
