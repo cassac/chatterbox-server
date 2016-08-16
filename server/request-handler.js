@@ -21,7 +21,7 @@ var defaultCorsHeaders = {
 var endpoints = {
   'classes': {
     'messages': {headers: 'GET, POST, PUT, DELETE, OPTIONS', data: []},
-    'rooms': {headers: 'GET, OPTIONS, DELETE', data: []}
+    'room': {headers: 'GET, POST, OPTIONS, DELETE', data: []}
   }  
 };
 var endpointData = function(requestURL) {
@@ -68,14 +68,14 @@ var requestHandler = function(request, response) {
     response.end('{"results":[]}');
   }
 
-  if (request.method === 'POST' && enddata.headers.includes('POST')) {
+  if (enddata && request.method === 'POST' && enddata.headers.includes('POST')) {
     statusCode = 201;
     request.on('data', function(data) {
       var incomingData = JSON.parse(data.toString());
       enddata.data.push(incomingData);
-      var rooms = endpoints.classes.rooms.data;
-      if (rooms.indexOf(incomingData.roomname) < 0) {
-        rooms.push(incomingData.roomname);
+      var room = endpoints.classes.room.data;
+      if (room.indexOf(incomingData.roomname) < 0) {
+        room.push(incomingData.roomname);
       }
     });
     response.writeHead(statusCode, headers);
@@ -83,24 +83,26 @@ var requestHandler = function(request, response) {
     response.end(JSON.stringify(returnData));
   }
 
-  if (request.method === 'GET' && enddata.headers.includes('GET')) {
+  if (enddata && request.method === 'GET' && enddata.headers.includes('GET')) {
     statusCode = 200;
     response.writeHead(statusCode, headers);
     var returnData = {results: enddata.data};
     response.end(JSON.stringify(returnData));
   }
 
-  if (request.method === 'OPTIONS' && enddata.headers.includes('OPTIONS')) {
+  if (enddata && request.method === 'OPTIONS' && enddata.headers.includes('OPTIONS')) {
     statusCode = 200;
     response.writeHead(statusCode, headers);
     var returnData = {results: defaultCorsHeaders['access-control-allow-methods']};
     response.end(JSON.stringify(returnData));    
   }
 
-  statusCode = 405;
-  headers['Content-Type'] = 'application/json';
-  response.writeHead(statusCode, headers);
-  response.end('{"results":[], "message": "Method not allowed"}');
+  if (enddata && !enddata.headers.includes(request.method)) {
+    statusCode = 405;
+    headers['Content-Type'] = 'application/json';
+    response.writeHead(statusCode, headers);
+    response.end('{"results":[], "message": "Method not allowed"}');
+  }
   // The outgoing status.
   // var statusCode = 200;
 
