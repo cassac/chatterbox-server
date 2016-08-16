@@ -11,6 +11,8 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+var fs = require('fs');
+
 var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -22,7 +24,10 @@ var endpoints = {
   'classes': {
     'messages': {headers: 'GET, POST, PUT, DELETE, OPTIONS', data: []},
     'room': {headers: 'GET, POST, OPTIONS, DELETE', data: []}
-  }  
+  },  
+  'env': {
+    'config.js': {headers: 'GET, OPTIONS', data: []}
+  }
 };
 var endpointData = function(requestURL) {
   var points = requestURL.split('/');
@@ -38,7 +43,26 @@ var endpointData = function(requestURL) {
 }; 
 var requestHandler = function(request, response) {
 
+
+  // Starts to serve static files
+  // var htmlFile = fs.readFileSync('././client/index.html', 'utf8');
+  // var appFile = fs.readFileSync('././client/scripts/app.js', 'utf8');
+  // var jQueryFile = fs.readFileSync('././client/bower_components/jquery/dist/jquery.min.js', 'utf8');
+  // var dir = fs.readdirSync('././client');
+  // console.log('dir:', dir);
+  // response.end(htmlFile);
+  // response.write(htmlFile);
+  // response.write(appFile);
+  // response.write(jQueryFile);
+  // response.end(htmlFile)
+  // try {
+  //   var enddata = endpointData(request.url);
+  // } catch (err) {
+  //   var enddata;
+  // }
+
   var enddata = endpointData(request.url);
+
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -61,7 +85,6 @@ var requestHandler = function(request, response) {
 
   // returns 404 if enpoint does not exist or specific
   if (enddata === undefined || !Array.isArray(enddata.data)) {
-    console.log('please end', enddata);
     statusCode = 404;
     // left off here. incorrect endpoint kills server.
     response.writeHead(statusCode, headers);
